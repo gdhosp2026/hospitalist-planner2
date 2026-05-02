@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { T, GlobalStyles, BrandMark } from "./theme";
 
 // ─── DIAGNOSIS LIBRARY ───────────────────────────────────────────────────────
 const DEFAULT_DIAGNOSES = [
@@ -416,35 +417,36 @@ function CopyBtn({ text, small }) {
   const copy = () => { navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); };
   return (
     <button onClick={copy} style={{
-      padding: small ? "5px 12px" : "8px 18px",
-      borderRadius: "7px",
-      background: copied ? "#10B981" : "#1E293B",
-      color: "white", border: "none", cursor: "pointer",
-      fontSize: small ? "12px" : "13px",
-      fontFamily: "inherit", fontWeight: 600,
-      display: "flex", alignItems: "center", gap: "5px",
-      transition: "background 0.2s", whiteSpace: "nowrap",
+      padding: small ? "6px 12px" : "10px 16px",
+      background: copied ? T.accent : "transparent",
+      color: copied ? "#04070d" : T.accent,
+      border: `1px solid ${T.accent}`, cursor: "pointer",
+      fontSize: small ? 10 : 11, fontFamily: T.mono, fontWeight: 500,
+      letterSpacing: ".14em", textTransform: "uppercase",
+      display: "flex", alignItems: "center", gap: 6,
+      transition: "all 0.2s", whiteSpace: "nowrap",
     }}>
-      {copied ? "✓ Copied!" : "📋 Copy to EMR"}
+      {copied ? "✓ COPIED" : "COPY TO EMR"}
     </button>
   );
 }
 
 function EditableItem({ value, onChange, onDelete }) {
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", marginBottom: "4px" }}>
-      <span style={{ color: "#94A3B8", marginTop: "9px", flexShrink: 0, fontSize: "13px" }}>—</span>
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
+      <span style={{ color: T.accent, marginTop: 11, flexShrink: 0,
+                     width: 4, height: 4, background: T.accent, display: "inline-block" }} />
       <AutoTextarea value={value} onChange={e => onChange(e.target.value)}
         style={{
-          flex: 1, padding: "5px 8px", borderRadius: "6px",
-          border: "1px solid #E2E8F0", fontSize: "13.5px",
-          fontFamily: "inherit", color: "#1E293B", background: "white",
-          lineHeight: "1.5", outline: "none",
+          flex: 1, padding: "6px 10px",
+          border: "1px solid transparent", fontSize: 13.5,
+          fontFamily: "inherit", color: T.text, background: "rgba(0,0,0,0.2)",
+          lineHeight: 1.55, outline: "none",
         }}
       />
       <button onClick={onDelete} style={{
-        marginTop: "6px", flexShrink: 0, background: "none", border: "none",
-        cursor: "pointer", color: "#CBD5E1", fontSize: "15px", lineHeight: 1, padding: "2px",
+        marginTop: 6, flexShrink: 0, background: "none", border: "none",
+        cursor: "pointer", color: T.textFaint, fontSize: 15, lineHeight: 1, padding: 2,
       }} title="Remove">×</button>
     </div>
   );
@@ -483,129 +485,136 @@ function DiagnosisCard({ dx, onUpdate, onDelete, autoExpand }) {
 
   return (
     <div style={{
-      background: "white", borderRadius: "14px",
-      border: `1.5px solid ${expanded ? dx.color : "#E2E8F0"}`,
-      marginBottom: "10px", overflow: "hidden",
-      boxShadow: expanded ? `0 4px 24px ${dx.color}18` : "0 1px 4px rgba(0,0,0,0.05)",
-      transition: "border-color 0.2s, box-shadow 0.2s",
+      position: "relative", background: T.surface,
+      border: `1px solid ${expanded ? T.accent : T.border}`,
+      marginBottom: 14, transition: "border-color 0.2s",
+      boxShadow: expanded ? `0 0 30px ${T.accent}22` : "none",
     }}>
-      {/* Card Header */}
+      <div className="ap-corner" style={{ borderColor: expanded ? T.accent : T.border }}/>
       <div style={{
-        display: "flex", alignItems: "center", gap: "10px",
-        padding: "13px 16px", cursor: "pointer",
-        borderBottom: expanded ? "1px solid #F1F5F9" : "none",
-        background: expanded ? "#FAFBFC" : "white",
+        display: "flex", alignItems: "center", gap: 12,
+        padding: "16px 20px", cursor: "pointer",
+        borderBottom: expanded ? `1px dashed ${T.border}` : "none",
       }}>
         <div onClick={() => setExpanded(!expanded)}
-          style={{ width: "10px", height: "10px", borderRadius: "50%", background: dx.color, flexShrink: 0 }} />
-
+          style={{ width: 8, height: 8, background: T.accent, flexShrink: 0,
+                   boxShadow: `0 0 8px ${T.accent}` }} />
         {editingName ? (
           <input autoFocus value={dx.name}
             onChange={e => onUpdate({ ...dx, name: e.target.value })}
             onBlur={() => setEditingName(false)}
             onKeyDown={e => e.key === "Enter" && setEditingName(false)}
             style={{
-              flex: 1, fontSize: "15px", fontWeight: 700, color: "#0F172A",
-              border: "none", borderBottom: `2px solid ${dx.color}`,
+              flex: 1, fontSize: 16, fontWeight: 500, color: T.text,
+              border: "none", borderBottom: `1px solid ${T.accent}`,
               background: "transparent", outline: "none", fontFamily: "inherit", padding: "1px 0",
             }}
           />
         ) : (
           <span onClick={() => setExpanded(!expanded)}
-            style={{ flex: 1, fontSize: "15px", fontWeight: 700, color: "#0F172A", userSelect: "none", display: "flex", alignItems: "center", gap: "8px" }}>
+            style={{ flex: 1, fontSize: 16, fontWeight: 500, color: T.text,
+                     userSelect: "none", display: "flex", alignItems: "center", gap: 10,
+                     letterSpacing: "-0.01em" }}>
             {dx.name}
             {dx.id.startsWith("custom-") && (
-              <span style={{ fontSize: "10px", padding: "1px 7px", borderRadius: "10px", background: dx.color + "20", color: dx.color, fontWeight: 700, letterSpacing: "0.05em" }}>CUSTOM</span>
+              <span style={{ fontSize: 9, fontFamily: T.mono, padding: "2px 7px",
+                             background: `${T.accent}18`, color: T.accent,
+                             border: `1px solid ${T.accent}44`,
+                             letterSpacing: ".14em", textTransform: "uppercase" }}>CUSTOM</span>
             )}
           </span>
         )}
-
-        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-          <button onClick={() => setEditingName(!editingName)}
-            title="Rename" style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8", fontSize: "14px", padding: "2px 4px" }}>✏️</button>
-          <button onClick={() => setShowEMR(!showEMR)}
-            title="Preview EMR text" style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8", fontSize: "14px", padding: "2px 4px" }}>📄</button>
-          <button onClick={onDelete}
-            title="Remove diagnosis" style={{ background: "none", border: "none", cursor: "pointer", color: "#FCA5A5", fontSize: "16px", padding: "2px 4px" }}>×</button>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <button onClick={() => setEditingName(!editingName)} title="Rename"
+            style={{ background: "none", border: "none", cursor: "pointer",
+                     color: T.textFaint, fontSize: 11, fontFamily: T.mono,
+                     padding: "4px 8px", letterSpacing: ".1em", textTransform: "uppercase" }}>RENAME</button>
+          <button onClick={() => setShowEMR(!showEMR)} title="Preview EMR text"
+            style={{ background: "none", border: "none", cursor: "pointer",
+                     color: T.textFaint, fontSize: 11, fontFamily: T.mono,
+                     padding: "4px 8px", letterSpacing: ".1em", textTransform: "uppercase" }}>EMR</button>
+          <button onClick={onDelete} title="Remove diagnosis"
+            style={{ background: "none", border: "none", cursor: "pointer",
+                     color: T.alert, fontSize: 16, padding: "2px 8px" }}>×</button>
           <div onClick={() => setExpanded(!expanded)}
-            style={{ color: "#94A3B8", fontSize: "13px", cursor: "pointer", userSelect: "none" }}>
+            style={{ color: T.textFaint, fontSize: 11, cursor: "pointer",
+                     userSelect: "none", marginLeft: 4 }}>
             {expanded ? "▲" : "▼"}
           </div>
         </div>
       </div>
 
-      {/* EMR Preview inline */}
       {showEMR && (
-        <div style={{ padding: "14px 16px", borderBottom: "1px solid #F1F5F9", background: "#F8FAFC" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-            <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>EMR Preview</span>
-            <div style={{ display: "flex", gap: "6px" }}>
+        <div style={{ padding: "16px 20px", borderBottom: `1px dashed ${T.border}`,
+                      background: "rgba(0,0,0,0.25)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between",
+                        alignItems: "center", marginBottom: 10 }}>
+            <span style={{ fontSize: 10, fontFamily: T.mono, fontWeight: 500, color: T.accent,
+                           textTransform: "uppercase", letterSpacing: ".18em" }}>▾ EMR PREVIEW</span>
+            <div style={{ display: "flex", gap: 6 }}>
               <CopyBtn text={emrText} small />
-              <button onClick={() => setShowEMR(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8", fontSize: "16px" }}>×</button>
+              <button onClick={() => setShowEMR(false)}
+                style={{ background: "none", border: "none", cursor: "pointer",
+                         color: T.textFaint, fontSize: 16 }}>×</button>
             </div>
           </div>
           <pre style={{
-            margin: 0, padding: "10px 12px", borderRadius: "8px",
-            background: "white", border: "1px solid #E2E8F0",
-            fontSize: "11.5px", lineHeight: "1.7", fontFamily: "'Courier New', monospace",
-            color: "#1E293B", whiteSpace: "pre-wrap", wordBreak: "break-word",
-            maxHeight: "320px", overflowY: "auto",
+            margin: 0, padding: "12px 14px",
+            background: T.bg, border: `1px solid ${T.border}`,
+            fontSize: 11.5, lineHeight: 1.7, fontFamily: T.mono,
+            color: T.textDim, whiteSpace: "pre-wrap", wordBreak: "break-word",
+            maxHeight: 320, overflowY: "auto",
           }}>{emrText}</pre>
         </div>
       )}
 
-      {/* Expanded Body */}
       {expanded && (
-        <div style={{ padding: "16px" }}>
-
-          {/* Evidence base */}
-          <div style={{ marginBottom: "16px" }}>
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "5px" }}>
-              📚 Evidence Base
+        <div style={{ padding: 20 }}>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 10, fontFamily: T.mono, color: T.accent,
+                          textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 8 }}>
+              EVIDENCE BASE
             </div>
             <input value={dx.evidence} onChange={e => updateEvidence(e.target.value)}
               style={{
-                width: "100%", padding: "7px 10px", borderRadius: "7px",
-                border: "1px solid #E2E8F0", fontSize: "13px", fontFamily: "inherit",
-                color: "#475569", outline: "none", boxSizing: "border-box",
-                background: "#FAFBFF",
+                width: "100%", padding: "10px 12px", background: "rgba(0,0,0,0.2)",
+                border: `1px solid ${T.border}`, fontSize: 13, fontFamily: "inherit",
+                color: T.textDim, outline: "none", boxSizing: "border-box",
               }}
             />
           </div>
-
-          {/* Clinical criteria */}
-          <div style={{ marginBottom: "18px", padding: "12px 14px", borderRadius: "10px", background: `${dx.color}08`, border: `1px solid ${dx.color}30` }}>
-            <div style={{ fontSize: "11px", fontWeight: 700, color: dx.color, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "6px" }}>
-              🩺 Clinical Criteria / Supporting Data
+          <div style={{ marginBottom: 22, padding: "14px 16px",
+                        background: `${T.accent}08`, border: `1px solid ${T.accent}33` }}>
+            <div style={{ fontSize: 10, fontFamily: T.mono, color: T.accent,
+                          textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 10 }}>
+              CLINICAL CRITERIA / SUPPORTING DATA
             </div>
             <AutoTextarea
               value={dx.criteria || ""}
               onChange={e => updateCriteria(e.target.value)}
               placeholder={`Describe why this patient meets criteria for ${dx.name}.\n\nExamples:\n- BNP 1,240 pg/mL (markedly elevated)\n- CXR shows bilateral pulmonary edema and cardiomegaly\n- 3+ pitting edema bilateral lower extremities\n- Weight gain of 8 lbs over 5 days`}
               style={{
-                width: "100%", padding: "8px 10px", borderRadius: "7px",
-                border: `1px solid ${dx.color}40`, fontSize: "13px",
-                fontFamily: "inherit", color: "#1E293B", background: "white",
-                lineHeight: "1.6", outline: "none", boxSizing: "border-box",
-                minHeight: "90px",
+                width: "100%", padding: "10px 12px", background: "rgba(0,0,0,0.3)",
+                border: `1px solid ${T.border}`, fontSize: 13,
+                fontFamily: "inherit", color: T.text,
+                lineHeight: 1.6, outline: "none", boxSizing: "border-box", minHeight: 90,
               }}
             />
           </div>
-
-          {/* Sections */}
           {dx.sections.map((sec, si) => (
-            <div key={si} style={{ marginBottom: "16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+            <div key={si} style={{ marginBottom: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12,
+                            paddingBottom: 10, borderBottom: `1px dashed ${T.border}` }}>
                 <input value={sec.title} onChange={e => updateSectionTitle(si, e.target.value)}
                   style={{
-                    flex: 1, fontSize: "12px", fontWeight: 700, color: "#374151",
-                    textTransform: "uppercase", letterSpacing: "0.07em",
-                    border: "none", borderBottom: "1px dashed #E2E8F0",
-                    background: "transparent", outline: "none", fontFamily: "inherit", padding: "2px 0",
+                    flex: 1, fontSize: 11, fontWeight: 500, color: T.accent, fontFamily: T.mono,
+                    textTransform: "uppercase", letterSpacing: ".18em",
+                    border: "none", background: "transparent", outline: "none", padding: "2px 0",
                   }}
                 />
                 <button onClick={() => deleteSection(si)} title="Remove section"
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "#CBD5E1", fontSize: "14px" }}>×</button>
+                  style={{ background: "none", border: "none", cursor: "pointer",
+                           color: T.textFaint, fontSize: 14 }}>×</button>
               </div>
               {sec.items.map((item, ii) => (
                 <EditableItem key={ii} value={item}
@@ -614,19 +623,19 @@ function DiagnosisCard({ dx, onUpdate, onDelete, autoExpand }) {
                 />
               ))}
               <button onClick={() => addItem(si)} style={{
-                marginTop: "5px", marginLeft: "18px", background: "none", border: "none",
-                cursor: "pointer", color: dx.color, fontSize: "12px",
-                fontFamily: "inherit", padding: "2px 0", fontWeight: 600,
-              }}>+ Add item</button>
+                marginTop: 6, marginLeft: 18, background: "none", border: "none",
+                cursor: "pointer", color: T.accent, fontSize: 11,
+                fontFamily: T.mono, padding: "2px 0", letterSpacing: ".1em", textTransform: "uppercase",
+              }}>+ ADD ITEM</button>
             </div>
           ))}
-
-          <div style={{ display: "flex", gap: "8px", marginTop: "8px", paddingTop: "12px", borderTop: "1px dashed #F1F5F9" }}>
+          <div style={{ display: "flex", gap: 8, marginTop: 12, paddingTop: 14,
+                        borderTop: `1px dashed ${T.border}` }}>
             <button onClick={addSection} style={{
-              padding: "6px 14px", borderRadius: "6px", background: "#F1F5F9",
-              border: "none", cursor: "pointer", fontSize: "12px",
-              fontFamily: "inherit", color: "#475569", fontWeight: 600,
-            }}>+ Add Section</button>
+              padding: "8px 14px", background: "transparent",
+              border: `1px solid ${T.border}`, cursor: "pointer", fontSize: 11,
+              fontFamily: T.mono, color: T.textDim, letterSpacing: ".14em", textTransform: "uppercase",
+            }}>+ ADD SECTION</button>
             <CopyBtn text={emrText} small />
           </div>
         </div>
@@ -864,143 +873,143 @@ function AntibioticTool() {
 
   return (
     <div>
-      <div style={{ marginBottom: "20px" }}>
-        <div style={{ fontSize: "20px", fontWeight: 700, color: "#0F172A", marginBottom: "4px" }}>💊 Antibiotic Reference</div>
-        <div style={{ fontSize: "13px", color: "#64748B" }}>Evidence-based regimens with renal dosing and allergy alternatives. All regimens include step-down and duration guidance.</div>
+      <div className="ap-crumb"><span>REFERENCE</span><span>/</span><b>ANTIBIOTIC PROTOCOLS</b></div>
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ fontFamily: T.mono, fontSize: 11, color: T.accent,
+                      letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 14 }}>
+          EMPIRIC THERAPY · STEWARDSHIP · DOSING
+        </div>
+        <h2 style={{ fontSize: 42, fontWeight: 500, letterSpacing: "-0.03em",
+                     lineHeight: 1, margin: "0 0 12px", color: T.text }}>
+          Antibiotic reference.
+        </h2>
+        <div style={{ fontSize: 13, color: T.textDim, maxWidth: 600 }}>
+          Evidence-based regimens with renal dosing and allergy alternatives.
+          All regimens include step-down and duration guidance.
+        </div>
       </div>
-
-      {/* Controls */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap", alignItems: "center" }}>
-        <input
-          value={allergyFilter}
-          onChange={e => setAllergyFilter(e.target.value)}
-          placeholder="🔍 Filter by allergy or drug (e.g. penicillin, vancomycin)..."
-          style={{
-            flex: 1, minWidth: "200px", padding: "8px 13px", borderRadius: "8px",
-            border: "1px solid #E2E8F0", fontSize: "13px", fontFamily: "inherit",
-            background: "white", outline: "none",
-          }}
+      <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap", alignItems: "center" }}>
+        <input value={allergyFilter} onChange={e => setAllergyFilter(e.target.value)}
+          placeholder="Filter by allergy or drug (e.g. penicillin, vancomycin)…"
+          className="ap-input" style={{ flex: 1, minWidth: 240 }}
         />
         {allergyFilter && (
-          <button onClick={() => setAllergyFilter("")} style={{
-            padding: "8px 12px", borderRadius: "8px", background: "#FEF2F2",
-            border: "1px solid #FECACA", color: "#DC2626", cursor: "pointer",
-            fontSize: "12px", fontFamily: "inherit", fontWeight: 600,
-          }}>✕ Clear</button>
+          <button className="ap-ghost" onClick={() => setAllergyFilter("")}>✕ CLEAR</button>
         )}
       </div>
-
-      {/* Category tabs */}
-      <div style={{ display: "flex", gap: "6px", marginBottom: "18px", flexWrap: "wrap" }}>
-        <button onClick={() => setActiveCategory(null)} style={{
-          padding: "5px 12px", borderRadius: "20px", border: "none", cursor: "pointer",
-          fontSize: "12px", fontWeight: 600, fontFamily: "inherit",
-          background: !activeCategory ? "#0F172A" : "#F1F5F9",
-          color: !activeCategory ? "white" : "#475569",
-        }}>All</button>
+      <div style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap" }}>
+        <button className={"ap-chip" + (!activeCategory ? " active" : "")}
+          onClick={() => setActiveCategory(null)}>ALL</button>
         {ABX_DATA.map(cat => (
-          <button key={cat.category} onClick={() => setActiveCategory(activeCategory === cat.category ? null : cat.category)} style={{
-            padding: "5px 12px", borderRadius: "20px", border: "none", cursor: "pointer",
-            fontSize: "12px", fontWeight: 600, fontFamily: "inherit",
-            background: activeCategory === cat.category ? cat.color : "#F1F5F9",
-            color: activeCategory === cat.category ? "white" : "#475569",
-            transition: "all 0.15s",
-          }}>{cat.category}</button>
+          <button key={cat.category}
+            className={"ap-chip" + (activeCategory === cat.category ? " active" : "")}
+            onClick={() => setActiveCategory(activeCategory === cat.category ? null : cat.category)}>
+            {cat.category}
+          </button>
         ))}
       </div>
-
       {displayData.length === 0 && (
-        <div style={{ textAlign: "center", padding: "40px", color: "#94A3B8" }}>
-          No regimens match your filter.
+        <div style={{ textAlign: "center", padding: 60, color: T.textFaint, fontFamily: T.mono,
+                      fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>
+          NO REGIMENS MATCH YOUR FILTER.
         </div>
       )}
-
       {displayData.map(cat => (
-        <div key={cat.category} style={{ marginBottom: "22px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px", paddingBottom: "8px", borderBottom: `2px solid ${cat.color}` }}>
-            <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: cat.color }} />
-            <span style={{ fontSize: "16px", fontWeight: 700, color: "#0F172A" }}>{cat.category}</span>
+        <div key={cat.category} style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14,
+                        paddingBottom: 10, borderBottom: `1px dashed ${T.border}` }}>
+            <div style={{ width: 6, height: 6, background: T.accent, boxShadow: `0 0 8px ${T.accent}` }} />
+            <span style={{ fontSize: 11, fontFamily: T.mono, color: T.accent,
+                           letterSpacing: ".18em", textTransform: "uppercase", fontWeight: 500 }}>
+              {cat.category}
+            </span>
           </div>
-
           {cat.regimens.map((reg, ri) => {
             const key = `${cat.category}-${ri}`;
             const copyIdx = `${cat.category}-${ri}`;
+            const isFirst = ri === 0;
             return (
               <div key={ri} style={{
-                background: "white", borderRadius: "12px", border: "1px solid #E2E8F0",
-                marginBottom: "12px", overflow: "hidden",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                position: "relative", background: T.surface,
+                border: `1px solid ${isFirst ? T.accent : T.border}`,
+                marginBottom: 14,
+                boxShadow: isFirst ? `0 0 30px ${T.accent}22` : "none",
               }}>
-                {/* Regimen header */}
-                <div style={{ padding: "14px 16px", borderBottom: "1px solid #F1F5F9", background: "#FAFBFC", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 700, color: "#374151" }}>{reg.name}</span>
+                <div className="ap-corner" style={{ borderColor: isFirst ? T.accent : T.border }} />
+                {isFirst && (
+                  <div style={{ position: "absolute", top: 12, right: 12, fontFamily: T.mono,
+                                fontSize: 9, color: "#04070d", background: T.accent,
+                                padding: "3px 8px", letterSpacing: ".16em" }}>1ST LINE</div>
+                )}
+                <div style={{ padding: "16px 20px", borderBottom: `1px dashed ${T.border}`,
+                              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: T.text,
+                                 letterSpacing: "-0.005em" }}>{reg.name}</span>
                   <button onClick={() => copyRegimen(cat.category, reg, copyIdx)} style={{
-                    padding: "4px 12px", borderRadius: "6px",
-                    background: copiedIdx === copyIdx ? "#10B981" : "#0F172A",
-                    color: "white", border: "none", cursor: "pointer",
-                    fontSize: "11px", fontWeight: 700, fontFamily: "inherit",
-                  }}>{copiedIdx === copyIdx ? "✓ Copied" : "📋 Copy"}</button>
+                    padding: "5px 12px",
+                    background: copiedIdx === copyIdx ? T.accent : "transparent",
+                    color: copiedIdx === copyIdx ? "#04070d" : T.accent,
+                    border: `1px solid ${T.accent}`, cursor: "pointer",
+                    fontSize: 10, fontFamily: T.mono, fontWeight: 500,
+                    letterSpacing: ".14em", textTransform: "uppercase",
+                  }}>{copiedIdx === copyIdx ? "✓ COPIED" : "COPY"}</button>
                 </div>
-
-                <div style={{ padding: "14px 16px" }}>
-                  {/* First line */}
-                  <div style={{ marginBottom: "10px" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "3px" }}>First-Line</div>
-                    <div style={{ fontSize: "13.5px", color: "#0F172A", fontWeight: 600 }}>{reg.firstLine}</div>
+                <div style={{ padding: "16px 20px" }}>
+                  <div style={{ marginBottom: 14, padding: "10px 14px",
+                                background: `${T.accent}11`, borderLeft: `2px solid ${T.accent}` }}>
+                    <div style={{ fontSize: 10, fontFamily: T.mono, color: T.accent,
+                                  textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 4 }}>FIRST-LINE</div>
+                    <div style={{ fontSize: 14, color: T.text, fontWeight: 500 }}>{reg.firstLine}</div>
                   </div>
-
-                  {/* Alternative */}
-                  <div style={{ marginBottom: "10px" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#F59E0B", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "3px" }}>Alternative</div>
-                    <div style={{ fontSize: "13px", color: "#374151" }}>{reg.alt}</div>
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontFamily: T.mono, color: T.warn,
+                                  textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 4 }}>ALTERNATIVE</div>
+                    <div style={{ fontSize: 13, color: T.textDim }}>{reg.alt}</div>
                   </div>
-
-                  {/* Duration */}
-                  <div style={{ marginBottom: "10px" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#6366F1", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "3px" }}>Duration</div>
-                    <div style={{ fontSize: "13px", color: "#374151" }}>{reg.duration}</div>
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontFamily: T.mono, color: T.textFaint,
+                                  textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 4 }}>DURATION</div>
+                    <div style={{ fontSize: 13, color: T.textDim, fontFamily: T.mono }}>{reg.duration}</div>
                   </div>
-
-                  {/* Allergy note */}
-                  <div style={{ marginBottom: "10px", padding: "8px 12px", borderRadius: "7px", background: "#FEF9EC", border: "1px solid #FDE68A" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#92400E", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "3px" }}>⚠ Allergy Alternatives</div>
-                    <div style={{ fontSize: "12.5px", color: "#78350F" }}>{reg.allergyNote}</div>
+                  <div style={{ marginBottom: 12, padding: "10px 14px",
+                                background: `${T.warn}10`, border: `1px solid ${T.warn}40` }}>
+                    <div style={{ fontSize: 10, fontFamily: T.mono, color: T.warn,
+                                  textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 4 }}>⚠ ALLERGY ALTERNATIVES</div>
+                    <div style={{ fontSize: 12.5, color: T.textDim, lineHeight: 1.55 }}>{reg.allergyNote}</div>
                   </div>
-
-                  {/* Renal dosing toggle */}
                   <button onClick={() => toggleRenal(key)} style={{
-                    padding: "5px 12px", borderRadius: "6px",
-                    background: showRenal[key] ? "#EFF6FF" : "#F8FAFC",
-                    border: `1px solid ${showRenal[key] ? "#BFDBFE" : "#E2E8F0"}`,
-                    cursor: "pointer", fontSize: "12px", fontWeight: 600,
-                    fontFamily: "inherit", color: showRenal[key] ? "#1E40AF" : "#475569",
-                    marginBottom: showRenal[key] ? "10px" : "0",
+                    padding: "6px 12px", background: showRenal[key] ? `${T.accent}15` : "transparent",
+                    border: `1px solid ${showRenal[key] ? T.accent : T.border}`,
+                    cursor: "pointer", fontSize: 10, fontFamily: T.mono,
+                    color: showRenal[key] ? T.accent : T.textDim,
+                    letterSpacing: ".14em", textTransform: "uppercase",
+                    marginBottom: showRenal[key] ? 10 : 0,
                   }}>
-                    🫘 {showRenal[key] ? "Hide" : "Show"} Renal Dosing
+                    {showRenal[key] ? "▾ HIDE" : "▸ SHOW"} RENAL DOSING
                   </button>
-
                   {showRenal[key] && (
-                    <div style={{ borderRadius: "8px", border: "1px solid #BFDBFE", overflow: "hidden" }}>
-                      <div style={{ background: "#EFF6FF", padding: "6px 12px", fontSize: "10px", fontWeight: 700, color: "#1E40AF", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                        Renal Dosing by GFR (mL/min)
+                    <div style={{ border: `1px solid ${T.accent}40`, background: "rgba(0,0,0,0.3)" }}>
+                      <div style={{ background: `${T.accent}15`, padding: "8px 14px", fontSize: 10,
+                                    fontFamily: T.mono, color: T.accent,
+                                    textTransform: "uppercase", letterSpacing: ".18em" }}>
+                        RENAL DOSING BY GFR (mL/min)
                       </div>
                       {reg.renalDosing.map((r, k) => (
-                        <div key={k} style={{
-                          display: "flex", gap: "12px", padding: "8px 12px",
-                          borderTop: k > 0 ? "1px solid #DBEAFE" : "none",
-                          background: k % 2 === 0 ? "white" : "#F8FBFF",
-                        }}>
-                          <span style={{ fontSize: "12px", fontWeight: 700, color: "#1E40AF", minWidth: "80px", flexShrink: 0 }}>GFR {r.gfr}</span>
-                          <span style={{ fontSize: "12px", color: "#374151" }}>{r.dose}</span>
+                        <div key={k} style={{ display: "flex", gap: 14, padding: "10px 14px",
+                                             borderTop: k > 0 ? `1px dashed ${T.border}` : "none" }}>
+                          <span style={{ fontSize: 11, fontFamily: T.mono, color: T.accent,
+                                         minWidth: 80, flexShrink: 0,
+                                         letterSpacing: ".08em", textTransform: "uppercase" }}>GFR {r.gfr}</span>
+                          <span style={{ fontSize: 12.5, color: T.textDim, lineHeight: 1.5 }}>{r.dose}</span>
                         </div>
                       ))}
                     </div>
                   )}
-
-                  {/* Notes */}
                   {reg.notes && (
-                    <div style={{ marginTop: "10px", fontSize: "11.5px", color: "#64748B", fontStyle: "italic", paddingTop: "8px", borderTop: "1px dashed #F1F5F9" }}>
-                      📌 {reg.notes}
+                    <div style={{ marginTop: 12, fontSize: 11.5, color: T.textFaint,
+                                  fontFamily: T.mono, lineHeight: 1.6,
+                                  paddingTop: 10, borderTop: `1px dashed ${T.border}` }}>
+                      ◇ {reg.notes}
                     </div>
                   )}
                 </div>
@@ -1026,7 +1035,6 @@ function loadLibrary() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const saved = JSON.parse(raw);
-      // Merge: keep saved edits for known IDs, append any saved custom ones
       const savedMap = Object.fromEntries(saved.map(d => [d.id, d]));
       const merged = DEFAULT_DIAGNOSES.map(d => savedMap[d.id] ? { ...d, ...savedMap[d.id] } : d);
       const defaultIds = new Set(DEFAULT_DIAGNOSES.map(d => d.id));
@@ -1044,7 +1052,7 @@ function saveLibrary(lib) {
 export default function App() {
   const [library, setLibrary] = useState(() => loadLibrary());
   const [selected, setSelected] = useState([]);
-  const [view, setView] = useState("select");
+  const [view, setView] = useState("welcome");
   const [search, setSearch] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newDxName, setNewDxName] = useState("");
@@ -1052,7 +1060,6 @@ export default function App() {
   const [newlyCreatedId, setNewlyCreatedId] = useState(null);
   const [savedFlash, setSavedFlash] = useState(false);
 
-  // Auto-save library whenever it changes
   useEffect(() => {
     saveLibrary(library);
     setSavedFlash(true);
@@ -1099,195 +1106,310 @@ export default function App() {
   const allEMR = activeDiagnoses.map(dx => buildEMRText(dx, dx.criteria || "")).join("\n\n" + "=".repeat(50) + "\n\n");
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F0F4F8", fontFamily: "'Georgia', serif" }}>
+    <div style={{ minHeight: "100vh", color: T.text, fontFamily: T.font }}>
+      <GlobalStyles />
 
-      {/* Top Bar */}
       <div style={{
-        background: "#0F172A", color: "white",
-        padding: "0 28px", display: "flex", alignItems: "center",
-        justifyContent: "space-between", height: "54px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+        position: "sticky", top: 0, zIndex: 50,
+        background: "rgba(6,9,18,0.85)", backdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${T.border}`,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "16px 40px",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <span style={{ fontSize: "18px", fontWeight: 700, letterSpacing: "-0.3px" }}>Hospitalist Dx Planner</span>
-          <span style={{ fontSize: "11px", color: "#475569", letterSpacing: "0.1em", textTransform: "uppercase" }}>Evidence-Based</span>
-          {savedFlash && (
-            <span style={{ fontSize: "11px", color: "#10B981", display: "flex", alignItems: "center", gap: "4px", transition: "opacity 0.3s" }}>
-              ✓ Saved
-            </span>
-          )}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <BrandMark />
+          <span style={{ fontWeight: 600, fontSize: "13px", letterSpacing: ".06em", textTransform: "uppercase" }}>
+            A&P / Generator
+          </span>
         </div>
         <div style={{ display: "flex", gap: "4px" }}>
           {[
-            { id: "select", label: "Dx Planner" },
-            { id: "plan",   label: `My Plan${selected.length > 0 ? ` (${selected.length})` : ""}` },
-            { id: "abx",    label: "💊 Antibiotics" },
+            { id: "welcome", label: "Home" },
+            { id: "select", label: "Diagnoses" },
+            { id: "plan",   label: `Plan${selected.length > 0 ? ` · ${selected.length}` : ""}` },
+            { id: "abx",    label: "Antibiotics" },
           ].map(({ id, label }) => (
             <button key={id} onClick={() => setView(id)} style={{
-              padding: "6px 14px", borderRadius: "7px", border: "none", cursor: "pointer",
-              fontSize: "13px", fontWeight: 600, fontFamily: "inherit",
-              background: view === id ? "#3B82F6" : "transparent",
-              color: view === id ? "white" : "#64748B",
+              padding: "7px 14px", border: `1px solid ${view === id ? T.accent : "transparent"}`,
+              cursor: "pointer", fontSize: "11px", fontWeight: 500, fontFamily: T.mono,
+              letterSpacing: ".14em", textTransform: "uppercase",
+              background: view === id ? `${T.accent}15` : "transparent",
+              color: view === id ? T.accent : T.textDim,
               transition: "all 0.15s",
             }}>{label}</button>
           ))}
         </div>
+        <div style={{ display: "flex", gap: "24px", fontFamily: T.mono, fontSize: "11px",
+                      color: T.textFaint, textTransform: "uppercase", letterSpacing: ".12em",
+                      alignItems: "center" }}>
+          <span>UNIT · MICU-3</span>
+          <span>USR · M.OKAFOR, MD</span>
+          {savedFlash
+            ? <span style={{ color: T.accent }}>✓ SAVED</span>
+            : <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><span className="pulse-dot"/>SYNCED</span>}
+        </div>
       </div>
 
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "28px 20px" }}>
+      <div style={{ maxWidth: view === "welcome" ? "100%" : "1100px", margin: "0 auto", padding: view === "welcome" ? "0" : "40px 28px" }}>
 
-        {/* CREATE MODAL */}
         {showCreateModal && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
-            <div style={{ background: "white", borderRadius: "16px", padding: "28px", width: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
-              <div style={{ fontSize: "17px", fontWeight: 700, color: "#0F172A", marginBottom: "4px" }}>Create New Diagnosis</div>
-              <div style={{ fontSize: "12px", color: "#64748B", marginBottom: "20px" }}>You can edit all details after creating.</div>
-              <div style={{ marginBottom: "16px" }}>
-                <div style={{ fontSize: "11px", color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "5px" }}>Diagnosis Name *</div>
+          <div style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
+            backdropFilter: "blur(8px)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
+          }}>
+            <div style={{
+              position: "relative", background: T.surfaceSolid,
+              border: `1px solid ${T.accent}55`, padding: 32, width: 460,
+              boxShadow: `0 0 80px ${T.accent}33`,
+            }}>
+              <div className="ap-corner" style={{ width: 20, height: 20 }}/>
+              <div style={{ fontFamily: T.mono, fontSize: 10, color: T.accent,
+                            letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 12 }}>
+                NEW ENTRY
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 500, color: T.text,
+                            letterSpacing: "-0.02em", marginBottom: 6 }}>
+                Create new diagnosis
+              </div>
+              <div style={{ fontSize: 13, color: T.textDim, marginBottom: 22 }}>
+                You can edit all details after creating.
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 10, fontFamily: T.mono, color: T.textFaint,
+                              textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 8 }}>
+                  DIAGNOSIS NAME *
+                </div>
                 <input autoFocus value={newDxName} onChange={e => setNewDxName(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && createNewDx()}
                   placeholder="e.g. Hepatic Encephalopathy"
-                  style={{ width: "100%", padding: "9px 11px", borderRadius: "8px", border: "1px solid #E2E8F0", fontSize: "14px", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                  className="ap-input"
                 />
               </div>
-              <div style={{ marginBottom: "22px" }}>
-                <div style={{ fontSize: "11px", color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>Color</div>
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              <div style={{ marginBottom: 26 }}>
+                <div style={{ fontSize: 10, fontFamily: T.mono, color: T.textFaint,
+                              textTransform: "uppercase", letterSpacing: ".18em", marginBottom: 10 }}>
+                  ACCENT COLOR
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {PALETTE.map(c => (
                     <div key={c} onClick={() => setNewDxColor(c)} style={{
-                      width: "26px", height: "26px", borderRadius: "50%", background: c, cursor: "pointer",
-                      border: newDxColor === c ? "3px solid #0F172A" : "3px solid transparent",
+                      width: 26, height: 26, background: c, cursor: "pointer",
+                      border: newDxColor === c ? `2px solid ${T.text}` : "2px solid transparent",
                       boxSizing: "border-box", transition: "border 0.15s",
+                      boxShadow: newDxColor === c ? `0 0 12px ${c}` : "none",
                     }} />
                   ))}
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button onClick={createNewDx} disabled={!newDxName.trim()} style={{
-                  flex: 1, padding: "10px", borderRadius: "8px",
-                  background: newDxName.trim() ? "#3B82F6" : "#E2E8F0",
-                  color: newDxName.trim() ? "white" : "#94A3B8",
-                  border: "none", cursor: newDxName.trim() ? "pointer" : "default",
-                  fontSize: "14px", fontWeight: 700, fontFamily: "inherit",
-                }}>Create & Edit</button>
-                <button onClick={() => { setShowCreateModal(false); setNewDxName(""); }} style={{
-                  padding: "10px 18px", borderRadius: "8px", background: "white",
-                  border: "1px solid #E2E8F0", cursor: "pointer", fontSize: "14px", fontFamily: "inherit", color: "#64748B",
-                }}>Cancel</button>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={createNewDx} disabled={!newDxName.trim()}
+                  className="ap-cta" style={{ flex: 1, justifyContent: "center", padding: "12px" }}>
+                  CREATE &amp; EDIT
+                </button>
+                <button onClick={() => { setShowCreateModal(false); setNewDxName(""); }}
+                  className="ap-ghost" style={{ padding: "12px 20px" }}>
+                  CANCEL
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── SELECT VIEW ── */}
+        {view === "welcome" && (
+          <div style={{ position: "relative", padding: "56px 40px 0", minHeight: "calc(100vh - 73px)" }}>
+            <div className="ap-crumb"><span>SESSION</span><span>/</span><b>NEW ENCOUNTER</b></div>
+            <div style={{ maxWidth: 900 }}>
+              <h1 style={{ fontSize: "72px", fontWeight: 500, lineHeight: ".96",
+                           letterSpacing: "-0.04em", margin: "0 0 20px" }}>
+                Clinical reasoning,<br/>
+                <em style={{ fontStyle: "normal", color: T.accent,
+                             textShadow: `0 0 40px ${T.accent}99` }}>
+                  at the speed of rounds.
+                </em>
+              </h1>
+              <p style={{ fontSize: "17px", maxWidth: 540, lineHeight: 1.55,
+                          color: T.textDim, margin: "0 0 44px" }}>
+                Generate evidence-aligned assessments and plans for any inpatient diagnosis.
+                Antibiotic stewardship and dosing baked in.
+              </p>
+              <button className="ap-cta" onClick={() => setView("select")}>
+                Begin encounter
+                <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+            <div style={{
+              position: "absolute", right: 40, top: 120, width: 280, padding: 20,
+              border: `1px solid ${T.border}`, background: T.surface, backdropFilter: "blur(10px)",
+            }}>
+              <div style={{ fontFamily: T.mono, fontSize: "10px", color: T.textFaint,
+                            letterSpacing: ".2em", textTransform: "uppercase",
+                            marginBottom: 14, display: "flex", justifyContent: "space-between" }}>
+                <span>SYSTEM</span>
+                <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}>
+                  <span className="pulse-dot"/>ONLINE
+                </span>
+              </div>
+              {[
+                ["Library", `${library.length} diagnoses`],
+                ["Guidelines", "IDSA · SCCM · AHA"],
+                ["Storage", "Local · auto-saved"],
+                ["Build", "04.26.01 // STABLE"],
+              ].map(([k, v]) => (
+                <div key={k} style={{
+                  display: "flex", justifyContent: "space-between",
+                  padding: "10px 0", borderTop: "1px dashed rgba(255,255,255,0.08)",
+                  fontSize: "12px", fontFamily: T.mono,
+                }}>
+                  <span style={{ color: T.textFaint }}>{k}</span>
+                  <span style={{ color: T.accent }}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{
+              position: "absolute", bottom: 32, left: 40, right: 40,
+              display: "flex", justifyContent: "space-between",
+              fontFamily: T.mono, fontSize: "11px", color: "rgba(231,238,247,0.35)",
+              letterSpacing: ".1em", textTransform: "uppercase",
+            }}>
+              <span>BUILD 04.26.01 // STABLE</span>
+              <span>HIPAA-COMPLIANT // PHI ENCRYPTED AT REST</span>
+              <span>SHIFT M · 07:42</span>
+            </div>
+          </div>
+        )}
+
         {view === "select" && (
           <>
+            <div className="ap-crumb"><span>NEW ENCOUNTER</span><span>/</span><b>SELECT DIAGNOSIS</b></div>
             <div style={{ display: "flex", gap: "10px", marginBottom: "20px", alignItems: "center" }}>
-              <input value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search diagnoses..."
-                style={{
-                  flex: 1, padding: "9px 14px", borderRadius: "9px",
-                  border: "1px solid #E2E8F0", fontSize: "14px", fontFamily: "inherit",
-                  background: "white", outline: "none",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                }}
-              />
+              <div style={{ position: "relative", flex: 1 }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                     style={{ position:"absolute", left:18, top:"50%", transform:"translateY(-50%)",
+                              width:18, height:18, color: T.accent }}>
+                  <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+                </svg>
+                <input className="ap-input" value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search diagnosis or syndrome…" style={{ paddingLeft: 50 }} />
+              </div>
               <button onClick={() => setShowCreateModal(true)} style={{
-                padding: "9px 18px", borderRadius: "9px", background: "#0F172A",
-                color: "white", border: "none", cursor: "pointer",
-                fontSize: "13px", fontWeight: 700, fontFamily: "inherit", whiteSpace: "nowrap",
+                padding: "14px 18px", background: "transparent", color: T.accent,
+                border: `1px solid ${T.accent}55`, cursor: "pointer",
+                fontSize: "11px", fontWeight: 500, fontFamily: T.mono,
+                letterSpacing: ".14em", textTransform: "uppercase", whiteSpace: "nowrap",
               }}>+ New Diagnosis</button>
             </div>
-            <div style={{ marginBottom: "16px", padding: "8px 12px", borderRadius: "8px", background: "#F0FDF4", border: "1px solid #BBF7D0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: "12px", color: "#166534" }}>
-                💾 All changes and custom diagnoses are automatically saved to this browser.
+            <div style={{
+              marginBottom: "20px", padding: "10px 14px",
+              background: T.surface, border: `1px solid ${T.border}`,
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+            }}>
+              <span style={{ fontSize: "11px", fontFamily: T.mono, color: T.textDim,
+                             letterSpacing: ".1em", textTransform: "uppercase",
+                             display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: T.accent }}>◆</span>
+                ALL CHANGES AUTO-SAVED LOCALLY
               </span>
               <button onClick={() => { if (window.confirm("Reset all diagnoses to defaults? Custom diagnoses will be removed and edits will be lost.")) { setLibrary(DEFAULT_DIAGNOSES); setSelected([]); }}}
-                style={{ fontSize: "11px", color: "#94A3B8", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", marginLeft: "12px" }}>
+                style={{ fontSize: "10px", fontFamily: T.mono, color: T.textFaint,
+                         background: "none", border: "none", cursor: "pointer",
+                         letterSpacing: ".14em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                 Reset to defaults
               </button>
             </div>
-
             {selected.length > 0 && (
-              <div style={{ marginBottom: "18px", display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                <span style={{ fontSize: "12px", color: "#64748B" }}>{selected.length} selected:</span>
+              <div style={{ marginBottom: "20px", display: "flex", gap: "8px",
+                            alignItems: "center", flexWrap: "wrap" }}>
+                <span style={{ fontSize: "10px", fontFamily: T.mono, color: T.textFaint,
+                               letterSpacing: ".14em", textTransform: "uppercase" }}>
+                  {selected.length} SELECTED ·
+                </span>
                 {activeDiagnoses.map(d => (
                   <span key={d.id} style={{
-                    fontSize: "12px", padding: "3px 10px", borderRadius: "20px",
-                    background: d.color + "18", color: d.color,
-                    border: `1px solid ${d.color}44`, fontWeight: 600,
+                    fontSize: "11px", fontFamily: T.mono, padding: "4px 10px",
+                    background: `${T.accent}12`, color: T.accent,
+                    border: `1px solid ${T.accent}44`, letterSpacing: ".06em",
                   }}>{d.name}</span>
                 ))}
-                <button onClick={() => setView("plan")} style={{
-                  padding: "5px 14px", borderRadius: "7px", background: "#3B82F6",
-                  color: "white", border: "none", cursor: "pointer",
-                  fontSize: "12px", fontWeight: 700, fontFamily: "inherit",
-                }}>View Plan →</button>
+                <button className="ap-cta" onClick={() => setView("plan")} style={{ padding: "8px 16px", fontSize: 12 }}>
+                  View Plan
+                  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M13 5l7 7-7 7"/>
+                  </svg>
+                </button>
               </div>
             )}
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
               {filteredLib.map(dx => {
                 const isSel = selected.includes(dx.id);
+                const itemCount = dx.sections.reduce((a, s) => a + s.items.length, 0);
                 return (
                   <div key={dx.id} onClick={() => toggleSelect(dx.id)} style={{
-                    padding: "14px 16px", borderRadius: "11px", cursor: "pointer",
-                    border: `2px solid ${isSel ? dx.color : "#E2E8F0"}`,
-                    background: isSel ? dx.color + "10" : "white",
-                    transition: "all 0.15s",
-                    boxShadow: isSel ? `0 2px 12px ${dx.color}22` : "0 1px 3px rgba(0,0,0,0.04)",
+                    position: "relative", padding: "20px", cursor: "pointer",
+                    background: isSel ? `${T.accent}10` : T.surface,
+                    border: `1px solid ${isSel ? T.accent : T.border}`,
+                    transition: "all 0.2s",
                   }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "5px" }}>
-                      <div style={{ width: "9px", height: "9px", borderRadius: "50%", background: dx.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: "14px", fontWeight: 700, color: isSel ? dx.color : "#1E293B" }}>{dx.name}</span>
-                      {isSel && <span style={{ marginLeft: "auto", color: dx.color, fontSize: "15px" }}>✓</span>}
+                    <div className="ap-corner"/>
+                    <div style={{ fontFamily: T.mono, fontSize: "10px", color: T.accent,
+                                  letterSpacing: ".14em", marginBottom: 10 }}>
+                      {dx.id.startsWith("custom-") ? "CUSTOM" : "STANDARD"}
+                      {isSel && <span style={{ marginLeft: 8, color: T.accent }}>● SELECTED</span>}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#94A3B8", paddingLeft: "17px" }}>
-                      {dx.sections.reduce((a, s) => a + s.items.length, 0)} items · {dx.sections.length} sections
+                    <div style={{ fontSize: "16px", fontWeight: 500, lineHeight: 1.25,
+                                  letterSpacing: "-0.01em", marginBottom: 10, color: T.text }}>
+                      {dx.name}
+                    </div>
+                    <div style={{ display: "flex", gap: 14, fontFamily: T.mono, fontSize: 10,
+                                  color: T.textFaint, letterSpacing: ".08em", textTransform: "uppercase" }}>
+                      <span>{itemCount} ITEMS</span>
+                      <span>{dx.sections.length} SECTIONS</span>
                     </div>
                   </div>
                 );
               })}
             </div>
-
             {filteredLib.length === 0 && (
-              <div style={{ textAlign: "center", padding: "40px", color: "#94A3B8" }}>
-                No diagnoses match "{search}"
+              <div style={{ textAlign: "center", padding: "60px", color: T.textFaint, fontFamily: T.mono,
+                            fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>
+                NO DIAGNOSES MATCH "{search}"
               </div>
             )}
           </>
         )}
 
-        {/* ── PLAN VIEW ── */}
         {view === "plan" && (
           <>
+            <div className="ap-crumb"><span>ENCOUNTER</span><span>/</span><b>ACTIVE PLAN</b></div>
             {activeDiagnoses.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "60px 20px", color: "#94A3B8" }}>
-                <div style={{ fontSize: "36px", marginBottom: "12px" }}>📋</div>
-                <div style={{ fontSize: "15px", color: "#64748B", marginBottom: "16px" }}>No diagnoses selected yet.</div>
-                <button onClick={() => setView("select")} style={{
-                  padding: "9px 20px", borderRadius: "8px", background: "#3B82F6",
-                  color: "white", border: "none", cursor: "pointer",
-                  fontSize: "14px", fontWeight: 700, fontFamily: "inherit",
-                }}>← Select Diagnoses</button>
+              <div style={{ textAlign: "center", padding: "80px 20px" }}>
+                <div style={{ fontFamily: T.mono, fontSize: 11, letterSpacing: ".14em",
+                              textTransform: "uppercase", color: T.textFaint, marginBottom: 16 }}>
+                  NO DIAGNOSES SELECTED
+                </div>
+                <button className="ap-ghost" onClick={() => setView("select")}>← SELECT DIAGNOSES</button>
               </div>
             ) : (
               <>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px", flexWrap: "wrap", gap: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between",
+                              alignItems: "flex-end", marginBottom: 28, flexWrap: "wrap", gap: 16 }}>
                   <div>
-                    <div style={{ fontSize: "18px", fontWeight: 700, color: "#0F172A" }}>
-                      Active Plan — {activeDiagnoses.length} Diagnosis{activeDiagnoses.length > 1 ? "es" : ""}
+                    <div style={{ fontFamily: T.mono, fontSize: 11, color: T.accent,
+                                  letterSpacing: ".18em", textTransform: "uppercase", marginBottom: 14 }}>
+                      A&P · {activeDiagnoses.length} DIAGNOSIS{activeDiagnoses.length > 1 ? "ES" : ""} · GENERATED
                     </div>
-                    <div style={{ fontSize: "12px", color: "#64748B", marginTop: "2px" }}>
-                      Fill in clinical criteria, edit any item, then copy to EMR
+                    <h2 style={{ fontSize: 42, fontWeight: 500, letterSpacing: "-0.03em",
+                                 lineHeight: 1, margin: "0 0 8px", color: T.text }}>
+                      Active plan.
+                    </h2>
+                    <div style={{ fontSize: 13, color: T.textDim }}>
+                      Fill in clinical criteria, edit any item, then copy to EMR.
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <button onClick={() => setView("select")} style={{
-                      padding: "7px 14px", borderRadius: "7px", background: "white",
-                      border: "1px solid #E2E8F0", cursor: "pointer",
-                      fontSize: "12px", fontFamily: "inherit", color: "#475569", fontWeight: 600,
-                    }}>← Edit Selection</button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="ap-ghost" onClick={() => setView("select")}>← EDIT SELECTION</button>
                     {activeDiagnoses.length > 1 && <CopyBtn text={allEMR} />}
                   </div>
                 </div>
@@ -1298,18 +1420,19 @@ export default function App() {
                     onDelete={() => deleteDx(dx.id)}
                   />
                 ))}
-                <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
                   <button onClick={() => setShowCreateModal(true)} style={{
-                    padding: "8px 16px", borderRadius: "8px", background: "white",
-                    border: "1px dashed #CBD5E1", cursor: "pointer",
-                    fontSize: "13px", fontFamily: "inherit", color: "#64748B", fontWeight: 600,
-                  }}>+ Create New Diagnosis</button>
+                    padding: "10px 16px", background: "transparent",
+                    border: `1px dashed ${T.borderMid}`, cursor: "pointer",
+                    fontSize: 11, fontFamily: T.mono, color: T.textDim,
+                    letterSpacing: ".14em", textTransform: "uppercase",
+                  }}>+ CREATE NEW DIAGNOSIS</button>
                 </div>
               </>
             )}
           </>
         )}
-        {/* ── ANTIBIOTIC VIEW ── */}
+
         {view === "abx" && <AntibioticTool />}
 
       </div>
